@@ -32,5 +32,5 @@ WHERE {
 } ##sort by date 
 ORDER BY ?data")
 
-geip17 <- dataset[["results"]]
+geip17 <- dataset[["results"]] 
 

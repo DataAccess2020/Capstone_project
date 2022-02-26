@@ -49,5 +49,9 @@ gruppo_parl
 ##chek if I miss some categories 
 str_detect(gruppo_parl, "altro")
 
-##generate a new data frame with the variables in geip17 and 'gruppo_parl'
-geip17gp <- cbind(geip17, gruppo_parl)
+##add 'gruppo_parl' to the data frame geip17
+geip17$gruppo <- gruppo_parl
+with(geip17, table(gruppo_parlamentare, gruppo_parl))
+
+geip17$num.gender <- ifelse(geip17$genere == "male", 1, 0)
+table(geip17$num.gender, geip17$genere)

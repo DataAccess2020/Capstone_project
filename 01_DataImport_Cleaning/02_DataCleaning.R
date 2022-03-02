@@ -35,13 +35,13 @@ swords <- tibble(
 )
 swords
 
-manual_swords <-  c("d", "n", "3", "2", "02428", "00538", "00544")
+manual_swords <-  c("d", "n", "3", "2", "02428", "00538", "00544", "caradonna", "madonna")
 comb_mswords <- c(manual_swords, stopwords(kind="it"))
 comb_mswords
 
 
 manualswords <- tibble(
-  x1=1:286,
+  x1=1:288,
   x2=comb_mswords
 )
 manualswords
@@ -64,20 +64,16 @@ twordsfilter <- twowords %>%
 twordsfilter_sep <- twordsfilter %>% 
   separate(split_argomento, c("parola1", "parola2"))
 
-##remove stop words
+##remove stop words and "caradonna", "madonna"
 
 noswords <- twordsfilter_sep %>% 
   filter(!parola1 %in% manualswords$x2) %>% 
   filter(!parola2 %in% manualswords$x2)
 
-##see which are the words which are the most commonly paired with 'donna/e'
+##see which are the most commonly paired words with 'donna/e'
 
 noswords %>%
   count(parola1, parola2, sort=TRUE)
-
-##Renato Di Donna
-##salvatore caradonna
-##madonna 
 
 str_subset(geip17$argomento, "Renato Di Donna", negate=FALSE) ##12
 str_subset(geip17$argomento, "Salvatore Caradonna", negate=FALSE) ##3
@@ -85,7 +81,7 @@ str_subset(geip17$argomento, "Madonna", negate=FALSE) ##9
 
 ##da rivedere
 geip17filter <- geip17 %>% 
-  filter(!argomento %in% c("Renato Di Donna", "Salvatore Caradonna", "Madonna"))
+  filter(!argomento %in% "Renato Di Donna")
 
 ##recode 'gruppo parlamentare'
 

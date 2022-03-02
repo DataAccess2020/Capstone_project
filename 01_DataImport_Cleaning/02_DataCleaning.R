@@ -28,6 +28,8 @@ tm::stopwords("italian")
 stop_words
 stopwords
 
+##create a data frame with italian stopwords
+
 stopwords(kind="it")
 swords <- tibble(
   x1=1:279,
@@ -35,18 +37,20 @@ swords <- tibble(
 )
 swords
 
-manual_swords <-  c("d", "n", "3", "2", "02428", "00538", "00544", "caradonna", "madonna")
+##list other words I don't want to include in the analysis
+
+manual_swords <-  c("d", "n", "3", "2", "02428", "00538", "00544", "caradonna", "madonna", "Renato Di")
 comb_mswords <- c(manual_swords, stopwords(kind="it"))
 comb_mswords
 
+##add this vector to the previously defined data frame
 
 manualswords <- tibble(
-  x1=1:288,
-  x2=comb_mswords
+  x1=comb_mswords
 )
 manualswords
 
-##split the variable 'argomento' into its single words ('tokens')
+##split the variable 'argomento' into its single 'units of text' ('tokens'), in this case words
   
 ?unnest_tokens()
 
@@ -54,26 +58,28 @@ twowords <- geip17 %>%
  select(argomento, data_intervento) %>% 
     unnest_tokens(split_argomento, argomento, token="ngrams", n=2)
 
-##filter twowords only when the pattern "donn[ea]" appears in the column 'split_argomento' 
+##filter threewords to obtain a dataframe where only the pattern "donn[ea]" appears 
+##in the column 'split_argomento' 
 
-twordsfilter <- twowords %>% 
-  filter(grepl(pattern="donn[ea]", split_argomento))
+twowordsfilter <- twowords %>% 
+  filter(grepl(pattern="donn[ea]", split_argomento,ignore.case = TRUE))
 
-##separate the column 'split_argomento' into its single words
+##split the column 'split_argomento' into its single words
 
-twordsfilter_sep <- twordsfilter %>% 
+twowordsfilter_sep <- twowordsfilter %>% 
   separate(split_argomento, c("parola1", "parola2"))
 
-##remove stop words and "caradonna", "madonna"
+##remove stop words, "caradonna", "madonna", "Renato Di Donna"
 
-noswords <- twordsfilter_sep %>% 
-  filter(!parola1 %in% manualswords$x2) %>% 
-  filter(!parola2 %in% manualswords$x2)
+noswords <- twowordsfilter_sep %>% 
+  filter(!parola1 %in% manualswords$x1) %>% 
+  filter(!parola2 %in% manualswords$x1)
 
-##see which are the most commonly paired words with 'donna/e'
+##recombine the columns 'parola1' and 'parola2' into one 
 
-noswords %>%
-  count(parola1, parola2, sort=TRUE)
+bigrams_united <- noswords %>%
+  unite(noswords, parola1, parola2, sep = " ")
+bigrams_united
 
 str_subset(geip17$argomento, "Renato Di Donna", negate=FALSE) ##12
 str_subset(geip17$argomento, "Salvatore Caradonna", negate=FALSE) ##3

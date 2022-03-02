@@ -36,13 +36,13 @@ swords <- tibble(
 swords
 
 manual_swords <-  c("d", "n", "3", "2", "02428", "00538", "00544")
-vector <- c(manual_swords, stopwords(kind="it"))
-vector
+comb_mswords <- c(manual_swords, stopwords(kind="it"))
+comb_mswords
 
 
 manualswords <- tibble(
   x1=1:286,
-  x2=vector
+  x2=comb_mswords
 )
 manualswords
 
@@ -54,20 +54,26 @@ twowords <- geip17 %>%
  select(argomento, data_intervento) %>% 
     unnest_tokens(split_argomento, argomento, token="ngrams", n=2)
 
+##filter twowords only when the pattern "donn[ea]" appears in the column 'split_argomento' 
+
 twordsfilter <- twowords %>% 
   filter(grepl(pattern="donn[ea]", split_argomento))
 
+##separate the column 'split_argomento' into its single words
 
 twordsfilter_sep <- twordsfilter %>% 
   separate(split_argomento, c("parola1", "parola2"))
 
-filtered <- twordsfilter_sep %>% 
+##remove stop words
+
+noswords <- twordsfilter_sep %>% 
   filter(!parola1 %in% manualswords$x2) %>% 
   filter(!parola2 %in% manualswords$x2)
 
-filtered %>%
-  count(parola1, parola2, sort=TRUE)
+##see which are the words which are the most commonly paired with 'donna/e'
 
+noswords %>%
+  count(parola1, parola2, sort=TRUE)
 
 ##Renato Di Donna
 ##salvatore caradonna
@@ -78,43 +84,8 @@ str_subset(geip17$argomento, "Salvatore Caradonna", negate=FALSE) ##3
 str_subset(geip17$argomento, "Madonna", negate=FALSE) ##9
 
 ##da rivedere
-
-
 geip17filter <- geip17 %>% 
   filter(!argomento %in% c("Renato Di Donna", "Salvatore Caradonna", "Madonna"))
-
-
-install.packages("tm")
-library(tm)
-tm::stopwords("italian")
-stop_words
-stopwords
-
-anti_join(split_argomento, x2)
-
-stopwords(kind="it")
-swords <- tibble(
-  x1=1:279,
-  x2=stopwords(kind="it")
-)
-swords
-
-split_argomento_stopwords <- filter4words %>% 
-  separate(split_argomento, c("word1", "word2", "word3", "word4"), sep = "")
-
-
-
-split_argomento_filtered <- split_argomento_stopwords %>% 
-  filter(!word1 %in% swords$x2) %>% 
-  filter(!word2 %in% swords$x2) %>% 
-  filter(!word3 %in% swords$x2) %>%
-  filter(!word4 %in% swords$x2) %>% 
-  count(word1, word2, word3, word4, sort=TRUE)
-split_argomento_filtered
-
-split_argomento_filtered_count <- split_argomento_filtered %>% 
-  count(word1, word2, word3, word4, sort=TRUE)
-split_argomento_filtered_count
 
 ##recode 'gruppo parlamentare'
 

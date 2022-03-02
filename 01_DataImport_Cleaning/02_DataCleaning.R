@@ -1,14 +1,120 @@
 View(geip17) ##gender equality italian parliament XVII legislature
 library(stringr)
+library(tidyverse)
 
-##check if I selected speeches in which 'donne/a' was mentioned, as I wanted
-
-str_detect(geip17$argomento, "donn(e|a)")
+geip17$argomento
 
 ##convert dates in a readable format 
 
 library(lubridate)
-geip17$data <- ymd(geip17$data)
+geip17$dataNascita <- ymd(geip17$dataNascita)
+geip17$data_intervento <- ymd(geip17$data_intervento)
+geip17$inizioIncarico <- ymd(geip17$inizioIncarico)
+geip17$fineIncarico <- ymd(geip17$fineIncarico)
+
+##check if I selected speeches in which 'donne/a' was mentioned, as I wanted
+
+check_strings <- str_detect(geip17$argomento, "donn(e|a)")
+check_strings
+
+#I have some falses, so I need to check why and how to fix the problem
+
+install.packages("tidytext")
+library(tidytext)
+library(tidyr)
+install.packages("tm")
+library(tm)
+tm::stopwords("italian")
+stop_words
+stopwords
+
+stopwords(kind="it")
+swords <- tibble(
+  x1=1:279,
+  x2=stopwords(kind="it")
+)
+swords
+
+manual_swords <-  c("d", "n", "3", "2", "02428", "00538", "00544")
+vector <- c(manual_swords, stopwords(kind="it"))
+vector
+
+
+manualswords <- tibble(
+  x1=1:286,
+  x2=vector
+)
+manualswords
+
+##split the variable 'argomento' into its single words ('tokens')
+  
+?unnest_tokens()
+
+twowords <- geip17 %>% 
+ select(argomento, data_intervento) %>% 
+    unnest_tokens(split_argomento, argomento, token="ngrams", n=2)
+
+twordsfilter <- twowords %>% 
+  filter(grepl(pattern="donn[ea]", split_argomento))
+
+
+twordsfilter_sep <- twordsfilter %>% 
+  separate(split_argomento, c("parola1", "parola2"))
+
+filtered <- twordsfilter_sep %>% 
+  filter(!parola1 %in% manualswords$x2) %>% 
+  filter(!parola2 %in% manualswords$x2)
+
+filtered %>%
+  count(parola1, parola2, sort=TRUE)
+
+
+##Renato Di Donna
+##salvatore caradonna
+##madonna 
+
+str_subset(geip17$argomento, "Renato Di Donna", negate=FALSE) ##12
+str_subset(geip17$argomento, "Salvatore Caradonna", negate=FALSE) ##3
+str_subset(geip17$argomento, "Madonna", negate=FALSE) ##9
+
+##da rivedere
+
+
+geip17filter <- geip17 %>% 
+  filter(!argomento %in% c("Renato Di Donna", "Salvatore Caradonna", "Madonna"))
+
+
+install.packages("tm")
+library(tm)
+tm::stopwords("italian")
+stop_words
+stopwords
+
+anti_join(split_argomento, x2)
+
+stopwords(kind="it")
+swords <- tibble(
+  x1=1:279,
+  x2=stopwords(kind="it")
+)
+swords
+
+split_argomento_stopwords <- filter4words %>% 
+  separate(split_argomento, c("word1", "word2", "word3", "word4"), sep = "")
+
+
+
+split_argomento_filtered <- split_argomento_stopwords %>% 
+  filter(!word1 %in% swords$x2) %>% 
+  filter(!word2 %in% swords$x2) %>% 
+  filter(!word3 %in% swords$x2) %>%
+  filter(!word4 %in% swords$x2) %>% 
+  count(word1, word2, word3, word4, sort=TRUE)
+split_argomento_filtered
+
+split_argomento_filtered_count <- split_argomento_filtered %>% 
+  count(word1, word2, word3, word4, sort=TRUE)
+split_argomento_filtered_count
 
 ##recode 'gruppo parlamentare'
 

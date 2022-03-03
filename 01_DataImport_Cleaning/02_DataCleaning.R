@@ -2,8 +2,6 @@ View(geip17) ##gender equality italian parliament XVII legislature
 library(stringr)
 library(tidyverse)
 
-geip17$argomento
-
 ##convert dates in a readable format 
 
 library(lubridate)
@@ -39,7 +37,8 @@ swords
 
 ##list other words I don't want to include in the analysis
 
-manual_swords <-  c("d", "n", "3", "2", "02428", "00538", "00544", "caradonna", "madonna", "Renato Di")
+manual_swords <-  c("d", "n", "3", "2", "02428", "00538", 
+                    "00544", "caradonna", "madonna", "Renato Di", "nonch")
 comb_mswords <- c(manual_swords, stopwords(kind="it"))
 comb_mswords
 
@@ -55,10 +54,10 @@ manualswords
 ?unnest_tokens()
 
 twowords <- geip17 %>% 
- select(argomento, data_intervento) %>% 
+ select(argomento, genere) %>% 
     unnest_tokens(split_argomento, argomento, token="ngrams", n=2)
 
-##filter threewords to obtain a dataframe where only the pattern "donn[ea]" appears 
+##filter twowords to obtain a dataframe where only the pattern "donn[ea]" appears 
 ##in the column 'split_argomento' 
 
 twowordsfilter <- twowords %>% 
@@ -80,6 +79,9 @@ noswords <- twowordsfilter_sep %>%
 bigrams_united <- noswords %>%
   unite(noswords, parola1, parola2, sep = " ")
 bigrams_united
+
+bigrams_count <- bigrams_united %>%
+  count(noswords)
 
 str_subset(geip17$argomento, "Renato Di Donna", negate=FALSE) ##12
 str_subset(geip17$argomento, "Salvatore Caradonna", negate=FALSE) ##3

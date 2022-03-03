@@ -80,17 +80,28 @@ bigrams_united <- noswords %>%
   unite(noswords, parola1, parola2, sep = " ")
 bigrams_united
 
+##count the most common bigrams
+
 bigrams_count <- bigrams_united %>%
   count(noswords)
+bigrams_count
 
-str_subset(geip17$argomento, "Renato Di Donna", negate=FALSE) ##12
-str_subset(geip17$argomento, "Salvatore Caradonna", negate=FALSE) ##3
-str_subset(geip17$argomento, "Madonna", negate=FALSE) ##9
+##remove observations in which deputies don't talk about women
 
-##da rivedere
-geip17filter <- geip17 %>% 
-  filter(!argomento %in% "Renato Di Donna")
+to_remove <- str_match_all(geip17$argomento, "Renato Di Donna|Salvatore Caradonna|Madonna")
+to_remove
 
+toremove <- tibble(
+  x1=1:366,
+  x2=to_remove
+)
+View(toremove)
+
+geip17 <- filter(
+  geip17,
+  to_remove %in% "character(0)"
+)
+                 
 ##recode 'gruppo parlamentare'
 
 table(geip17$gruppo_parlamentare)

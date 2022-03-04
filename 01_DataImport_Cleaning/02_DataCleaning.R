@@ -26,15 +26,6 @@ tm::stopwords("italian")
 stop_words
 stopwords
 
-##create a data frame with italian stopwords
-
-stopwords(kind="it")
-swords <- tibble(
-  x1=1:279,
-  x2=stopwords(kind="it")
-)
-swords
-
 ##list other words I don't want to include in the analysis
 
 manual_swords <-  c("d", "n", "3", "2", "02428", "00538", 
@@ -42,7 +33,7 @@ manual_swords <-  c("d", "n", "3", "2", "02428", "00538",
 comb_mswords <- c(manual_swords, stopwords(kind="it"))
 comb_mswords
 
-##add this vector to the previously defined data frame
+##create a data frame with all the stop words I don't want to include
 
 manualswords <- tibble(
   x1=comb_mswords
@@ -144,6 +135,8 @@ str_detect(gruppo_parl, "altro")
 ##add 'gruppo_parl' to the data frame geip17
 geip17$gruppo <- gruppo_parl
 with(geip17, table(gruppo_parlamentare, gruppo_parl))
+
+##recode gender in order to have male=1, female=0
 
 geip17$num.gender <- ifelse(geip17$genere == "male", 1, 0)
 table(geip17$num.gender, geip17$genere)

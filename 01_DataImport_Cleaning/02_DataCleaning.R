@@ -29,7 +29,12 @@ stopwords
 ##list other words I don't want to include in the analysis
 
 manual_swords <-  c("d", "n", "3", "2", "02428", "00538", 
-                    "00544", "caradonna", "madonna", "Renato Di", "nonch")
+                    "00544", "165", "7", "8", "00185", "90", "29", "00083", "1", 
+                    "00065", "00042", "00043", "00041", "00040", "00036", "00039",
+                    "90", "00110", "5", "00269", "01324", "04892", "00185", "00988",
+                    "1556", "s", "1278", "3354", "3359", "0139", "10456", "9", "08834", "09428",
+                    "281", "23", "00338", "00083", "01324", "00395", "10986",
+                    "caradonna", "madonna", "Renato Di", "nonch")
 comb_mswords <- c(manual_swords, stopwords(kind="it"))
 comb_mswords
 
@@ -48,32 +53,32 @@ twowords <- geip17 %>%
  select(argomento, genere) %>% 
     unnest_tokens(split_argomento, argomento, token="ngrams", n=2)
 
-##filter twowords to obtain a dataframe where only the pattern "donn[ea]" appears 
-##in the column 'split_argomento' 
-
-twowordsfilter <- twowords %>% 
-  filter(grepl(pattern="donn[ea]", split_argomento,ignore.case = TRUE))
-
 ##split the column 'split_argomento' into its single words
 
-twowordsfilter_sep <- twowordsfilter %>% 
+twowords_sep <- twowords %>% 
   separate(split_argomento, c("parola1", "parola2"))
 
-##remove stop words, "caradonna", "madonna", "Renato Di Donna"
+##remove stop words, and other words I don't want to include
 
-noswords <- twowordsfilter_sep %>% 
+filter2words <- twowords_sep %>% 
   filter(!parola1 %in% manualswords$x1) %>% 
   filter(!parola2 %in% manualswords$x1)
 
 ##recombine the columns 'parola1' and 'parola2' into one 
 
-bigrams_united <- noswords %>%
+bigramsunited <- filter2words %>%
   unite(noswords, parola1, parola2, sep = " ")
-bigrams_united
+bigramsunited
+
+##filter bigramsunited to obtain a dataframe where only the pattern "donn[ea]" appears 
+##in the column 'split_argomento' 
+
+bigramsfilter <- bigramsunited %>% 
+  filter(grepl(pattern="donn[ea]", noswords, ignore.case = TRUE))
 
 ##count the most common bigrams
 
-bigrams_count <- bigrams_united %>%
+bigrams_count <- bigramsfilter %>%
   count(noswords)
 bigrams_count
 

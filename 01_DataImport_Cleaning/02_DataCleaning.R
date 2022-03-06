@@ -161,7 +161,7 @@ tibble_match <- tibble(
   x1=1:58086,
   x2=match
 )
-tot2015$donne <- ifelse(match %in% "character(0)", "0", "1")
+tot2015$donne <- ifelse(match %in% "character(0)", 0, 1)
 
 ##check if I need to remove cases in which the deputy didn't talk about women, 
 ##even if the pattern donne[ea] appears in the variable 'argomento'

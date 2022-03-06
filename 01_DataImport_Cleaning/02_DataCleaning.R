@@ -136,7 +136,7 @@ gruppo_parl <- ifelse(m5s == TRUE,"Movimento 5 Stelle",
 gruppo_parl
 
 ##chek if I miss some categories 
-str_detect(gruppo_parl, "altro")
+str_which(gruppo_parl, "altro")
 
 ##add 'gruppo_parl' to the data frame geip17
 geip17$gruppo <- gruppo_parl
@@ -147,9 +147,13 @@ with(geip17, table(gruppo_parlamentare, gruppo_parl))
 
 tot2015 <- vroom(here("Data.csv/tot2015.csv"))
 
+##recode dates
+
 tot2015$data_intervento <- ymd(tot2015$data_intervento)
 tot2015$inizioIncarico <- ymd(tot2015$inizioIncarico)
 tot2015$fineIncarico <- ymd(tot2015$fineIncarico)
+
+##recode "argomento": 0=the deputy didn't talk about women, 1=the deputy told about women
 
 match <- str_match_all(tot2015$argomento, "donn(e|a)")
 
@@ -157,9 +161,52 @@ tibble_match <- tibble(
   x1=1:58086,
   x2=match
 )
+tot2015$donne <- ifelse(match %in% "character(0)", "0", "1")
 
-tot2015$argomento <- ifelse(match %in% "character(0)", "0", "1")
+##check if I need to remove cases in which the deputy didn't talk about women, 
+##even if the pattern donne[ea] appears in the variable 'argomento'
 
-table(tot2015$argomento)
+str_which(tot2015$argomento, "madonna|caradonna|di donna")
 
+prop.table(table(tot2015$genere, tot2015$donne), margin=1)
+
+##recode gruppo parlamentare
+
+m5s <- str_detect(tot2015$gruppo_parlamentare, "STELLE")
+m5s
+
+##misto
+mis <- str_detect(tot2015$gruppo_parlamentare, "MISTO")
+mis
+
+##sinistra: articolo 1-movimento democratico e progressista, partito democratico, sinistra ecologia libertà, sinistra italiana
+sx <- str_detect(tot2015$gruppo_parlamentare, "SINISTRA|DEMOCRATICO")
+sx
+
+##centro: alternativa popolare-centristi per l'europa, per l'Italia
+cen <- str_detect(tot2015$gruppo_parlamentare, "CIVIC|POPOLARE|PER")
+cen
+
+##destra: forza italia-il popolo della libertà-Berlusconi presidente, fratelli d'Italia-alleanza nazionale, il popolo della libertà-Berlusconi presidente, lega nord e autonomie, nuovo centrodestra
+
+dx <- str_detect(tot2015$gruppo_parlamentare, "POPOLO|FRATELLI|LEGA|DESTRA")
+dx
+
+##generate the variable gruppo_parl with the parliamentary groups
+
+gruppo_parl <- ifelse(m5s == TRUE,"Movimento 5 Stelle",
+                      ifelse(mis == TRUE, "Misto",
+                             ifelse(sx == TRUE, "Sinistra",
+                                    ifelse(cen==TRUE, "Centro",
+                                           ifelse(dx==TRUE, "Destra",
+                                                  "altro")))))
+
+gruppo_parl
+
+##chek if I miss some categories 
+str_which(gruppo_parl, "altro")
+
+##add 'gruppo_parl' to the data frame tot2015
+tot2015$gruppo <- gruppo_parl
+with(tot2015, table(gruppo_parlamentare, gruppo_parl))
 

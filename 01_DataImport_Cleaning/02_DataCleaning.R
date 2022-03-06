@@ -1,4 +1,8 @@
-View(geip17) ##gender equality italian parliament XVII legislature
+##geip17 (gender equality italian parliament XVII legislature)---------------
+library(here)
+library(vroom)
+geip17 <- vroom(here("Data.csv/geip17.csv"))
+
 library(stringr)
 library(tidyverse)
 
@@ -16,11 +20,8 @@ check_strings <- str_detect(geip17$argomento, "donn(e|a)")
 check_strings
 
 #I have some falses, so I need to check why and how to fix the problem
-
-install.packages("tidytext")
 library(tidytext)
 library(tidyr)
-install.packages("tm")
 library(tm)
 tm::stopwords("italian")
 stop_words
@@ -141,7 +142,24 @@ str_detect(gruppo_parl, "altro")
 geip17$gruppo <- gruppo_parl
 with(geip17, table(gruppo_parlamentare, gruppo_parl))
 
-##recode gender in order to have male=1, female=0
 
-geip17$num.gender <- ifelse(geip17$genere == "male", 1, 0)
-table(geip17$num.gender, geip17$genere)
+##tot2015---------------------------------
+
+tot2015 <- vroom(here("Data.csv/tot2015.csv"))
+
+tot2015$data_intervento <- ymd(tot2015$data_intervento)
+tot2015$inizioIncarico <- ymd(tot2015$inizioIncarico)
+tot2015$fineIncarico <- ymd(tot2015$fineIncarico)
+
+match <- str_match_all(tot2015$argomento, "donn(e|a)")
+
+tibble_match <- tibble(
+  x1=1:58086,
+  x2=match
+)
+
+tot2015$argomento <- ifelse(match %in% "character(0)", "0", "1")
+
+table(tot2015$argomento)
+
+

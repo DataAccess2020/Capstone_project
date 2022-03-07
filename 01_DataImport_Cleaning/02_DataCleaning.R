@@ -7,6 +7,7 @@ library(lubridate)
 library(tidytext)
 library(tidyr)
 library(tm)
+library(dplyr)
 geip17 <- vroom(here("Data.csv/geip17.csv"))
 
 ##convert dates in a readable format 
@@ -51,8 +52,8 @@ manualswords
 ?unnest_tokens()
 
 twowords <- geip17 %>% 
- select(argomento, genere) %>% 
-    unnest_tokens(split_argomento, argomento, token="ngrams", n=2)
+  select(argomento, genere) %>% 
+  unnest_tokens(split_argomento, argomento, token="ngrams", n=2)
 
 ##split the column 'split_argomento' into its single words
 
@@ -124,16 +125,16 @@ cen
 dx <- str_detect(geip17$gruppo_parlamentare, "POPOLO|FRATELLI|LEGA|DESTRA")
 dx
 
+
 ##generate the variable gruppo_parl with the parliamentary groups
 
-gruppo_parl <- ifelse(m5s == TRUE,"Movimento 5 Stelle",
+gruppo_parl <- ifelse(m5s == TRUE,"M5S",
                              ifelse(mis == TRUE, "Misto",
                                     ifelse(sx == TRUE, "Sinistra",
                                            ifelse(cen==TRUE, "Centro",
                                                  ifelse(dx==TRUE, "Destra",
                                                         "altro")))))
 
-gruppo_parl
 
 ##chek if I miss some categories 
 str_which(gruppo_parl, "altro")
@@ -194,7 +195,7 @@ dx
 
 ##generate the variable gruppo_parl with the parliamentary groups
 
-gruppo_parl <- ifelse(m5s == TRUE,"Movimento 5 Stelle",
+gruppo_parl <- ifelse(m5s == TRUE,"M5S",
                       ifelse(mis == TRUE, "Misto",
                              ifelse(sx == TRUE, "Sinistra",
                                     ifelse(cen==TRUE, "Centro",

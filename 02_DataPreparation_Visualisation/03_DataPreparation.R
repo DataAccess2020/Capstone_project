@@ -1,4 +1,5 @@
 ##geip17----------
+library(tables)
 
 prop.table(table(geip17$genere, geip17$gruppo), margin=1)
 
@@ -23,8 +24,9 @@ boxplot <- tibble(
 )
 
 count2015 <- boxplot %>%
-  count(genere, gruppo, donne, num.gender) 
+  count(genere, gruppo, donne)
 count2015
+
 
 count2015f <- filter(
   count2015,
@@ -35,7 +37,16 @@ prop.table(table(tot2015$gruppo, tot2015$donne), margin=2)
 
 group2015 <- tot2015 %>%
   group_by(gruppo, genere) %>%
-  count(
-    donne)
+  count(donne)
 group2015
+
+options(scipen = 99)
+
+trevtable <- xtabs(~donne+genere+gruppo, data=tot2015)
+final_table <- ftable(addmargins(prop.table(trevtable, 3), 3))*100
+
+percentages <- as_tibble(final_table)
+percentages <- filter(
+  percentages,
+  !gruppo %in% "Sum")
 

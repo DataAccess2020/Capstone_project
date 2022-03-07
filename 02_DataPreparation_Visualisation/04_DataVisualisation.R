@@ -1,6 +1,8 @@
 ##geip17------
 library(forcats)
 library(ggplot2)
+library(MASS)
+library(dplyr)
 
 bigrams_count %>%
   mutate(noswords = fct_reorder(noswords, n)) %>%
@@ -42,12 +44,11 @@ count2015 %>%
   xlab("") + 
   theme_bw()
 
-
-
-
-
-
-
-
-
+percentages %>%
+  mutate(gruppo = fct_reorder(gruppo, Freq)) %>%
+  ggplot(aes(x=gruppo, y=Freq, fill = factor(genere))) +
+  geom_bar(stat="identity", position = "dodge", alpha=.6, width=.4) +
+  facet_wrap(~donne, scale="free") +
+  xlab("") +
+  theme_bw()
 

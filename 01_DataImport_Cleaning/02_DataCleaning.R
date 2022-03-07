@@ -1,14 +1,16 @@
 ##geip17 (gender equality italian parliament XVII legislature)---------------
 library(here)
 library(vroom)
-geip17 <- vroom(here("Data.csv/geip17.csv"))
-
 library(stringr)
 library(tidyverse)
+library(lubridate)
+library(tidytext)
+library(tidyr)
+library(tm)
+geip17 <- vroom(here("Data.csv/geip17.csv"))
 
 ##convert dates in a readable format 
 
-library(lubridate)
 geip17$dataNascita <- ymd(geip17$dataNascita)
 geip17$data_intervento <- ymd(geip17$data_intervento)
 geip17$inizioIncarico <- ymd(geip17$inizioIncarico)
@@ -20,9 +22,7 @@ check_strings <- str_detect(geip17$argomento, "donn(e|a)")
 check_strings
 
 #I have some falses, so I need to check why and how to fix the problem
-library(tidytext)
-library(tidyr)
-library(tm)
+
 tm::stopwords("italian")
 stop_words
 stopwords
@@ -209,4 +209,9 @@ str_which(gruppo_parl, "altro")
 ##add 'gruppo_parl' to the data frame tot2015
 tot2015$gruppo <- gruppo_parl
 with(tot2015, table(gruppo_parlamentare, gruppo_parl))
+
+##recode gender in order to have a numeric variable
+
+tot2015$num.gender <- ifelse(tot2015$genere == "male", 1, 0)
+table(tot2015$genere, tot2015$donne)
 

@@ -9,7 +9,7 @@ barplot <- tibble(
 
 count17 <- barplot %>%
   count(genere, gruppo)
-count
+count17
 
 ##tot2015----------
 
@@ -30,4 +30,12 @@ count2015f <- filter(
   count2015,
   donne %in% "1"
 )
+
+prop.table(table(tot2015$gruppo, tot2015$donne), margin=2)
+
+group2015 <- tot2015 %>%
+  group_by(gruppo, genere) %>%
+  count(
+    donne)
+group2015
 

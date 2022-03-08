@@ -1,20 +1,12 @@
 ##geip17----------
 library(tables)
 
-prop.table(table(geip17$genere, geip17$gruppo), margin=1)
+propt17 <- prop.table(table(geip17$genere, geip17$gruppo), 2)
 
-barplot <- tibble(
-  genere=geip17$genere,
-  gruppo= geip17$gruppo
-)
+propt17 <- as.data.frame(propt17)
 
-count17 <- barplot %>%
-  count(genere, gruppo)
-count17
 
 ##tot2015----------
-
-prop.table(table(tot2015$genere, tot2015$donne), margin=1)
 
 boxplot <- tibble(
   genere=tot2015$genere,
@@ -22,18 +14,6 @@ boxplot <- tibble(
   donne=tot2015$donne,
   num.gender=tot2015$num.gender
 )
-
-count2015 <- boxplot %>%
-  count(genere, gruppo, donne)
-count2015
-
-
-count2015f <- filter(
-  count2015,
-  donne %in% "1"
-)
-
-prop.table(table(tot2015$gruppo, tot2015$donne), margin=2)
 
 group2015 <- tot2015 %>%
   group_by(gruppo, genere) %>%
@@ -43,10 +23,19 @@ group2015
 options(scipen = 99)
 
 trevtable <- xtabs(~donne+genere+gruppo, data=tot2015)
-final_table <- ftable(addmargins(prop.table(trevtable, 3), 3))*100
+trevtable
+
+final_table <- ftable(addmargins(prop.table(trevtable, c(1,3)), 3))*100
+final_table
+
 
 percentages <- as_tibble(final_table)
 percentages <- filter(
   percentages,
   !gruppo %in% "Sum")
+
+chisq.test(percentages$genere, percentages$donne, correct = FALSE,
+           p = rep(1/length(x), length(x)), rescale.p = FALSE,
+           simulate.p.value = TRUE, B = 2000)
+
 

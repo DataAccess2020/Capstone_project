@@ -1,8 +1,8 @@
 ##geip17------
 library(forcats)
 library(ggplot2)
-library(MASS)
 library(dplyr)
+
 
 bigrams_count %>%
   mutate(noswords = fct_reorder(noswords, n)) %>%
@@ -12,12 +12,15 @@ bigrams_count %>%
   xlab("") +
   theme_bw()
 
-count17 %>%
-  mutate(gruppo = fct_reorder(gruppo, n)) %>%
-  ggplot(aes(x=gruppo, y=n, fill = factor(genere))) +
-  geom_bar(stat="identity", position = "dodge", alpha=.6, width=.4) +
-  coord_flip() +
-  xlab("") +
+propt17 %>%  
+  mutate(Var2 = fct_reorder(Var2, Freq)) %>%
+  ggplot(aes(x=Var2, y=Freq, fill = factor(Var1))) +
+  geom_bar(stat="identity", position = "fill", alpha=.6, width=.4) +
+  labs(title = "Gender equality in Italian parliament, XVII legislature",
+       subtitle = "How much men and women deputies told about gender equality during the XVII legislature",
+       x = "parliamentary group",
+       y = "frequency",
+       fill="gender") +
   theme_bw()
 
 #in my dataset:161 women, 181 men
@@ -30,25 +33,22 @@ count17 %>%
 
 ##tot2015-------
 
-box <- ggplot(count2015, aes(x=donne, y=n, fill=genere)) +
+box <- ggplot(percentages, aes(x=donne, y=Freq, fill=genere)) +
   geom_boxplot() +
   facet_wrap(~donne, scale="free") +
   theme_bw()
 box
 
-count2015 %>%
-  mutate(gruppo = fct_reorder(gruppo, n)) %>%
-  ggplot(aes(x=gruppo, y=n, fill = factor(genere))) +
-  geom_bar(stat="identity", position = "dodge", alpha=.6, width=.4) +
-  facet_wrap(~donne, scale="free") +
-  xlab("") + 
-  theme_bw()
-
 percentages %>%
   mutate(gruppo = fct_reorder(gruppo, Freq)) %>%
   ggplot(aes(x=gruppo, y=Freq, fill = factor(genere))) +
-  geom_bar(stat="identity", position = "dodge", alpha=.6, width=.4) +
+  geom_bar(stat="identity", position = "fill", alpha=.6, width=.4) +
   facet_wrap(~donne, scale="free") +
-  xlab("") +
-  theme_bw()
+  labs(title = "Gender equality in Italian parliament, 2015",
+       subtitle = "How much men and women deputies told about gender equality in 2015",
+       x = "parliamentary group",
+       y = "frequency",
+       fill="gender") +
+  theme_bw() +
+  theme(legend.position = "bottom", legend.title.align=0.5)
 

@@ -1,0 +1,49 @@
+---
+title: "Report capstone project 2022"
+author: "Erica Ravarelli"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Research question 
+
+This short research is aimed at investigatig the relation between gender and tendency to talk about gender equality in italian parliament. An insight on the relation between party ideology and tendency to talk about women rights will be given, too. The analysis focuses on the XVII legislature, with a specific attention to 2015.
+
+## Choices justification
+
+Previous research have pointed out the fact that political representation is influenced by personal identity traits of the politician, specifically by his/her gender and race. Evidences about the relation between belonging political party and tendency to pay attention to gender equality have been found, too, with a strong association between left parties and sensitivity on gender equality issues. However, there is a lack of studies exploring these relations in the Italian context. My research aims at filling this gap.  
+The selection concerning time period has been driven by the fact that the highest number of women deputies has been reached in the context of the last legislature, if we exclude the current one which is still ongoing. Moreover, the year 2015 has been the only one in which no change of government took place, suggesting that parliamentary activity hasn't been altered by external interferences.
+
+## Main features of the project
+
+This project is structured as follows: in the first section, I will briefly describe the data collection process, in the second one I will go through the descriptive part of the analysis, whereas in the last section I will illustrate the consistency of the relations through the application of a chi-squared test. 
+
+# Technical overview
+
+The whole R scripts are available in [this](https://github.com/DataAccess2020/Capstone_project) Github repository. Therefore, in this short report I will only include and comment the most important passages of the analysis and the related lines of code. However, this does not affect the accessibility and reproducibility of the workflow.
+
+## R packages  
+
+In the following lines I list all the packages used in my research  
+
+```{r, message=FALSE}
+library(SPARQL)
+library(here)
+library(vroom)
+library(stringr)
+library(tidyverse)
+library(lubridate)
+library(tidytext)
+library(tidyr)
+library(tm)
+library(dplyr)
+library(tables)
+library(forcats)
+library(ggplot2)
+```
+
+
+

@@ -23,22 +23,22 @@ geip17 <- vroom(here("Data.csv/geip17.csv"))
 tot2015 <- vroom(here("Data.csv/tot2015.csv"))
 ```
 
-# Research question 
+# Research question
 
 This short research is aimed at investigatig the relation between gender and tendency to talk about gender equality in Italian parliament. An insight on the relation between party ideology and tendency to talk about women rights will be given, too. The analysis focuses on the XVII legislature, with a specific attention to 2015.
 
-Previous research have pointed out the fact that political representation is influenced by personal identity traits of the politician, specifically by his/her gender and race. Evidences about the relation between belonging political party and tendency to pay attention to gender equality have been found, too, with a strong association between left parties and sensitivity on gender equality issues. However, there is a lack of studies exploring these relations in the Italian context. My research aims at filling this gap.  
+Previous research have pointed out the fact that political representation is influenced by personal identity traits of the politician, specifically by his/her gender and race. Evidences about the relation between belonging political party and tendency to pay attention to gender equality have been found, too, with a strong association between left parties and sensitivity on gender equality issues. However, there is a lack of studies exploring these relations in the Italian context. My research aims at filling this gap.\
 The selection concerning time period has been driven by the fact that the highest number of women deputies has been reached in the context of the last legislature, if we exclude the current one which is still ongoing. Moreover, the year 2015 has been the only one in which no change of government took place, suggesting that parliamentary activity hasn't been altered by external interferences.
 
 ## Research structure and methods
 
-This project is structured as follows: in the first section, I will briefly describe the data collection process, in the second one I will go through the descriptive part of the analysis, whereas in the last section I will illustrate the consistency of the relations through the application of a chi-squared test. 
+This project is structured as follows: in the first section, I will briefly describe the data collection process, in the second one I will go through the descriptive part of the analysis, whereas in the last section I will illustrate the consistency of the relations through the application of a chi-squared test.
 
 # Technical overview
 
 The whole R scripts are available in [this](https://github.com/DataAccess2020/Capstone_project) Github repository. Therefore, in this short report I will only include and comment the most important passages of the analysis and the related lines of code. However, this does not affect the accessibility and reproducibility of the workflow.
 
-## R packages  
+## R packages
 
 In the following lines I list all the packages used in my research.
 
@@ -68,11 +68,12 @@ url="http://dati.camera.it/sparql"
 
 The first query allowed to import data for the whole XVII legislature, in particular I asked for discussion topic, personal details of the deputy, belonging parliamentary group and office beginning and ending dates, along with intervention date. These last three variables were used in order to apply a filter: indeed, specifying that I was interested only in interventions which had taken place between the starting and the ending office dates have been fundamental in order to avoid including unwanted results. The `intervento` and the `discussione` variables allowed to check that no duplicates were included. Finally, only discussions which took place during the XVII legislature have been selected.
 
-```{r, first query}
+```{r, first query, eval=F}
+"SELECT DISTINCT 
+?argomento ?nome ?cognome ?genere ?dataNascita 
+?gruppo_parlamentare ?background ?inizioIncarico ?fineIncarico ?data_intervento 
+?intervento ?discussione
 
-"SELECT DISTINCT ?argomento ?nome ?cognome ?genere ?dataNascita ?gruppo_parlamentare 
-                 ?background ?inizioIncarico ?fineIncarico ?data_intervento 
-                 ?intervento ?discussione
 WHERE { 
 ##define the variable 'dibattito' and select all those belonging to the XVII legislature. 
 ##define the variable 'discussione' starting from the variable 'dibattito'
@@ -129,7 +130,7 @@ In the second query an additional filter was added, in order to select only deba
 
 ```{r, second query, eval=F}
 
-"SELECT DISTINCT ?argomento ?nome ?cognome ?genere ?gruppo_parlamentare 
+"SELECT DISTINCT ?argomento ?nome ?cognome ?genere ?gruppo_parlamentare
 ?background ?inizioIncarico ?fineIncarico ?data_intervento ?intervento ?discussione
 WHERE  {
   {
@@ -184,7 +185,7 @@ OFFSET"
 
 tot2015 <- tibble()
 
-#offset to ask for more than  more than 10 000 results------ 
+#offset to ask for more than 10 000 results------ 
 query_offset <- c("0","5000","10000", "20000", "30000", "40000", 
                   "50000", "60000")
 
@@ -207,10 +208,10 @@ After collecting them, data were saved in a csv format through the `write.csv()`
 write.csv(geip17, here::here("Data.csv/geip17.csv"))
 write.csv(tot2015, here::here("Data.csv/tot2015.csv"))
 ```
-  
-## Data cleaning 
 
-Once collected and stored, data have been cleaned with the aim of preparing the analysis. 
+## Data cleaning
+
+Once collected and stored, data have been cleaned with the aim of preparing the analysis.
 
 ### XVII legislature
 
@@ -224,11 +225,16 @@ geip17$fineIncarico <- ymd(geip17$fineIncarico)
 ```
 
 After that, regular expressions were used in order to recode the variable concerning the deputies' belonging parliamentary group. In particular:
-- The Five Star Movement has been considered as a stand-alone party, taking as valid the narration about not being neither a left nor a right part which was loudly upheld by the Movement members.
-- Analogously, but for a different reason, deputies belonging to the mixed group were not assigend to a different category.
-- The `left` category includes: "movimento democratico e progressista", "partito democratico", "sinistra ecologia libertà", "sinistra italiana".
-- The `centre` category includes: "alternativa popolare-centristi per l'europa, per l'Italia".
-- The `right` category includes: "forza italia-il popolo della libertà-Berlusconi presidente", "fratelli d'Italia-alleanza nazionale", "il popolo della libertà-Berlusconi presidente", "lega nord e autonomie", "nuovo centrodestra".
+
+-   The Five Star Movement has been considered as a stand-alone party, taking as valid the narration about not being neither a left nor a right part which was loudly upheld by the Movement members.
+
+-   Analogously, but for a different and quite self-explanatory reason, deputies belonging to the mixed group were not assigned to a different category.
+
+-   The `left` category includes: "movimento democratico e progressista", "partito democratico", "sinistra ecologia libertà", "sinistra italiana".
+
+-   The `centre` category includes: "alternativa popolare-centristi per l'europa, per l'Italia".
+
+-   The `right` category includes: "forza italia-il popolo della libertà-Berlusconi presidente", "fratelli d'Italia-alleanza nazionale", "il popolo della libertà-Berlusconi presidente", "lega nord e autonomie", "nuovo centrodestra".
 
 ```{r, regex gr parl}
 m5s <- str_detect(geip17$gruppo_parlamentare, "STELLE")
@@ -255,4 +261,3 @@ gruppo_parl <- ifelse(m5s == TRUE,"M5S",
 ```
 
 ### Tokenisation
-

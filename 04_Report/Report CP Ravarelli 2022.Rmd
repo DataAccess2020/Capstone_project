@@ -277,14 +277,14 @@ geip17 <- filter(
 
 ### Year 2015
 
-... 
+...
 
 ## Text mining XVII legislature
 
-After carrying out a bit of data cleaning, I aimed at finding out within which scope deputies had been talking about women during the XVII legislature. In practical terms, this meant examining which words tended to follow the word "donna" immediately. This task has been carried out through the `tidytext` package.
-First of all, I removed numbers from the variable `argomento`, then I used the `tm` package to download a list of Italian stopwords, which I turned into the tibble `manualswords'` In this tibble I included also other words I didn't want to consider in my analysis. 
+After carrying out a bit of data cleaning, I aimed at finding out within which scope deputies had been talking about women during the XVII legislature. In practical terms, this meant examining which words tended to immediately follow the word "donna". This task has been carried out through the `tidytext` package.
+First of all, I removed numbers from the variable `argomento`, then I used the `tm` package to download a list of Italian stop words, which I turned into the tibble `manualswords`. In this tibble I included also other words I didn't want to consider in my analysis. 
 
-```{r, stopwords}
+```{r, stop words}
 
 geip17$argomento <- removeNumbers(geip17$argomento)
 
@@ -307,18 +307,18 @@ bigrams <- geip17 %>%
   unnest_tokens(split_argomento, argomento, token="ngrams", n=2)
 ```
 
-To remove stopwords from this variable I had to split the column into its single words, and to filter the newly created tibble in order to remove words belonging to the `manualswords` tibble. 
+To remove stop words from this variable I had to split the column into its single words, and to filter the newly created tibble in order to remove words belonging to the `manualswords` tibble. 
 
-```{r, results = 'hide'}
+```{r, warning = FALSE}
 bigrams_sep <- bigrams %>% 
-  separate(split_argomento, c("parola1", "parola2"))
+  separate(split_argomento, c("parola1", "parola2"), sep = " ")
 
 filterbigr <- bigrams_sep %>% 
   filter(!parola1 %in% manualswords$x1) %>% 
   filter(!parola2 %in% manualswords$x1)
 ```
 
-At this point I could recombine these single words through the `unite` function, exclude bigrams in which the word "donne" was absent through the `grepl` function, and finally examine the most common bigrams (not containing stop-words) using the `count()` function.
+At this point I could recombine these single words through the `unite` function, exclude bigrams in which the word "donne" was absent through the `grepl` function, and finally examine the most common bigrams (not containing stop words) using the `count()` function.
 
 ```{r, bigrams count}
 
@@ -332,3 +332,19 @@ bigrams_count <- greplbu %>%
   count(noswords)
 
 ```
+
+The outcome of this analysis is reported in the figure below.
+
+```{r, out.width = '85%', fig.align = 'center', fig.cap = 'Most common bigrams containing the word "donna/e", XVII legislature', message = F, echo = F}
+bigrams_count %>%
+  mutate(noswords = fct_reorder(noswords, n)) %>%
+  ggplot(aes(x=noswords, y=n)) +
+  geom_bar(stat="identity", fill="#f68060", alpha=.6, width=.4) +
+  coord_flip() +
+  xlab("") +
+  theme_bw()
+```
+
+This result suggests that deputies told about women within "auditions", so during interventions which are meant to allow commissions to deepen their knowledge about a specific topic. This first result is, therefore, not very useful to understand the precise scope of speeches mentioning women. However, we can say that during the XVII legislature deputies told about women within the scope of pensions ("opzione donna"), which confirms an historical focus of Italian welfare state, and, as a general rule, when violence episodes took place or in order to address the issue of violence against women.
+
+

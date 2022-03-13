@@ -260,7 +260,7 @@ gruppo_parl <- ifelse(m5s == TRUE,"M5S",
 
 ```
 
-Finally, I found out that in some cases deputies didn't actually talk about women: these observations had been included in my data set because the word 'donna' was part of a surname ('Caradonna', 'di Donna') or because deputies were actually talking about Jesus' mother, so the matched pattern was actually 'Madonna'. I, therefore, used the `str_match_all` command, which returns a matrix with a column for each observation pattern. I converted this matrix into the `to_remove` tibble, then I filtered the original data set, removing all observations in which the variable `x2` in `to_remove` was equal to `charachter(0)` (meaning that it did not match the pattern I was interested in removing).
+Finally, I found out that in some cases deputies didn't actually talk about women: these observations had been included in my data set because the word "donna" was part of a surname ("Caradonna", "di Donna") or because deputies were actually talking about Jesus' mother, so the matched pattern was actually "Madonna". I, therefore, used the `str_match_all` command, which returns a matrix with a column for each observation pattern. I converted this matrix into the `to_remove` tibble, then I filtered the original data set, removing all observations in which the variable `x2` in `to_remove` was equal to `charachter(0)` (meaning that it did not match the pattern I was interested in removing).
 
 ```{r, remove obs}
 to_remove <- str_match_all(geip17$argomento, 
@@ -268,18 +268,67 @@ to_remove <- str_match_all(geip17$argomento,
 
 to_remove <- tibble(
   x1=1:366,
-  x2=to_remove
-)
-View(to_remove)
+  x2=to_remove)
 
 geip17 <- filter(
   geip17,
-  to_remove$x2 %in% "character(0)"
-)
+  to_remove$x2 %in% "character(0)")
 ```
 
-## Tokenisation
+### Year 2015
 
-After carrying out a bit of data cleaning, I aimed at finding out within which scope deputies had been talking about women during the XVII legislature. In practical terms, this meant performing text mining. This task has been carried out through the tidytext package.
+... 
 
+## Text mining XVII legislature
 
+After carrying out a bit of data cleaning, I aimed at finding out within which scope deputies had been talking about women during the XVII legislature. In practical terms, this meant examining which words tended to follow the word "donna" immediately. This task has been carried out through the `tidytext` package.
+First of all, I removed numbers from the variable `argomento`, then I used the `tm` package to download a list of Italian stopwords, which I turned into the tibble `manualswords'` In this tibble I included also other words I didn't want to consider in my analysis. 
+
+```{r, stopwords}
+
+geip17$argomento <- removeNumbers(geip17$argomento)
+
+italiansw <- tm::stopwords("italian")
+
+manual_swords <-  c("d", "n", "s", "nonch")
+comb_mswords <- c(manual_swords, italiansw)
+
+manualswords <- tibble(
+  x1=comb_mswords
+)
+
+```
+
+After that, I split the variable `argomento` into consecutive sequences of words (n-grams), including the `token = "ngrams"` argument. I set `n=2` in order to obtain bigrams, so that I could examine pairs of two consecutive words. I, therefore, obtained the variable `split_argomento`.
+
+```{r, bigrams}
+bigrams <- geip17 %>% 
+  select(argomento, genere) %>% 
+  unnest_tokens(split_argomento, argomento, token="ngrams", n=2)
+```
+
+To remove stopwords from this variable I had to split the column into its single words, and to filter the newly created tibble in order to remove words belonging to the `manualswords` tibble. 
+
+```{r, results = 'hide'}
+bigrams_sep <- bigrams %>% 
+  separate(split_argomento, c("parola1", "parola2"))
+
+filterbigr <- bigrams_sep %>% 
+  filter(!parola1 %in% manualswords$x1) %>% 
+  filter(!parola2 %in% manualswords$x1)
+```
+
+At this point I could recombine these single words through the `unite` function, exclude bigrams in which the word "donne" was absent through the `grepl` function, and finally examine the most common bigrams (not containing stop-words) using the `count()` function.
+
+```{r, bigrams count}
+
+bigramsunited <- filterbigr %>%
+  unite(noswords, parola1, parola2, sep = " ")
+
+greplbu <- bigramsunited %>% 
+  filter(grepl(pattern="donn[ea]", noswords, ignore.case = TRUE))
+
+bigrams_count <- greplbu %>%
+  count(noswords)
+
+```

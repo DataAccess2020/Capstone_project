@@ -248,7 +248,7 @@ cen <- str_detect(geip17$gruppo_parlamentare, "CIVIC|POPOLARE|PER")
 dx <- str_detect(geip17$gruppo_parlamentare, "POPOLO|FRATELLI|LEGA|DESTRA")
 ```
 
-After making these decisions in terms of ideological positioning of the parliamentary group, the variable gruppo_parl has been generated through as `ifelse` command.
+After making these decisions in terms of ideological positioning of parliamentary groups, the variable `gruppo_parl` has been generated through an `ifelse` command.
 
 ```{r, gruppo_parl}
 gruppo_parl <- ifelse(m5s == TRUE,"M5S",
@@ -258,6 +258,7 @@ gruppo_parl <- ifelse(m5s == TRUE,"M5S",
                                            ifelse(dx==TRUE, "Destra",
                                                   "altro")))))
 
+geip17$gruppo_parlamentare <- gruppo_parl
 ```
 
 Finally, I found out that in some cases deputies didn't actually talk about women: these observations had been included in my data set because the word "donna" was part of a surname ("Caradonna", "di Donna") or because deputies were actually talking about Jesus' mother, so the matched pattern was actually "Madonna". I, therefore, used the `str_match_all` command, which returns a matrix with a column for each observation pattern. I converted this matrix into the `to_remove` tibble, then I filtered the original data set, removing all observations in which the variable `x2` in `to_remove` was equal to `charachter(0)` (meaning that it did not match the pattern I was interested in removing).
@@ -277,7 +278,18 @@ geip17 <- filter(
 
 ### Year 2015
 
-...
+For what concerns the dataset with all parliamentary interventions of 2015, I went through the same operations as those explained above for dates and parliamentary group, then I recoded the variable `argomento` because I needed it to become a dummy: 1 if the deputy told about women, 0 if he/she didn't.
+
+```{r, argomento 2015}
+match <- str_match_all(tot2015$argomento, "donn(e|a)")
+
+tibble_match <- tibble(
+  x1=1:58086,
+  x2=match
+)
+tot2015$argomento <- ifelse(match %in% "character(0)", "any topic", 
+                            "women rights/gender equality")
+```
 
 ## Text mining XVII legislature
 
@@ -333,7 +345,7 @@ bigrams_count <- greplbu %>%
 
 ```
 
-The outcome of this analysis is reported in the figure below.
+The outcome of this analysis is reported in *Figure 1*.
 
 ```{r, out.width = '85%', fig.align = 'center', fig.cap = 'Most common bigrams containing the word "donna/e", XVII legislature', message = F, echo = F}
 bigrams_count %>%
@@ -347,4 +359,21 @@ bigrams_count %>%
 
 This result suggests that deputies told about women within "auditions", so during interventions which are meant to allow commissions to deepen their knowledge about a specific topic. This first result is, therefore, not very useful to understand the precise scope of speeches mentioning women. However, we can say that during the XVII legislature deputies told about women within the scope of pensions ("opzione donna"), which confirms an historical focus of Italian welfare state, and, as a general rule, when violence episodes took place or in order to address the issue of violence against women.
 
+## Data viasualisation
+
+
+```{r, out.width = '85%', fig.align = 'center', fig.cap = 'Gender equality in Italian parliament, XVII legislature', message = F, echo = F}
+
+propt17 <- prop.table(table(geip17$genere, geip17$gruppo_parlamentare), 2)
+propt17 <- as.data.frame(propt17)
+
+propt17 %>%  
+  ggplot(aes(x=Var2, y=Freq, fill = factor(Var1))) +
+  geom_bar(stat="identity", position = "fill", alpha=.6, width=.4) +
+  labs(title = "How much men and women deputies told about gender equality during the XVII legislature",
+       x = "parliamentary group",
+       y = "frequency",
+       fill="gender") +
+       theme_bw()
+```
 

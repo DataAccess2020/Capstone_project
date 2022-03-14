@@ -54,9 +54,8 @@ gruppo_parl <- ifelse(m5s == TRUE,"M5S",
 ##chek if I miss some categories 
 str_which(gruppo_parl, "altro")
 
-##add 'gruppo_parl' to the data frame geip17
-geip17$gruppo <- gruppo_parl
-with(geip17, table(gruppo_parlamentare, gruppo_parl))
+##replace the new categories of 'gruppo_parl' in 'gruppo_parlamentare'
+geip17$gruppo_parlamentare <- gruppo_parl
 
 ##check if I selected speeches in which 'donne/a' was mentioned, as I wanted
 
@@ -72,71 +71,11 @@ to_remove <- tibble(
   x1=1:366,
   x2=to_remove
 )
-View(to_remove)
 
 geip17 <- filter(
   geip17,
   to_remove$x2 %in% "character(0)"
 )
-
-
-tm::stopwords("italian")
-stop_words
-stopwords
-
-##list other words I don't want to include in the analysis and remove numbers from the variable 'argomento'
-
-geip17$argomento <- removeNumbers(geip17$argomento)
-
-manual_swords <-  c("d", "n", "s", "caradonna", "madonna", "Renato Di", "nonch")
-comb_mswords <- c(manual_swords, stopwords(kind="it"))
-comb_mswords
-
-##create a data frame with all the words I don't want to include
-
-manualswords <- tibble(
-  x1=comb_mswords
-)
-manualswords
-
-##split the variable 'argomento' into its single 'units of text' ('tokens'), in this case words
-  
-?unnest_tokens()
-
-twowords <- geip17 %>% 
-  select(argomento, genere) %>% 
-  unnest_tokens(split_argomento, argomento, token="ngrams", n=2)
-
-##split the column 'split_argomento' into its single words
-
-twowords_sep <- twowords %>% 
-  separate(split_argomento, c("parola1", "parola2"))
-
-##remove stop words, and other words I don't want to include
-
-filter2words <- twowords_sep %>% 
-  filter(!parola1 %in% manualswords$x1) %>% 
-  filter(!parola2 %in% manualswords$x1)
-
-##recombine the columns 'parola1' and 'parola2' into one 
-
-bigramsunited <- filter2words %>%
-  unite(noswords, parola1, parola2, sep = " ")
-bigramsunited
-
-##filter bigramsunited to obtain a dataframe where only the pattern "donn[ea]" appears 
-##in the column 'split_argomento' 
-
-bigramsfilter <- bigramsunited %>% 
-  filter(grepl(pattern="donn[ea]", noswords, ignore.case = TRUE))
-
-##count the most common bigrams
-
-bigrams_count <- bigramsfilter %>%
-  count(noswords)
-bigrams_count
-
-
 
 ##tot2015---------------------------------
 
@@ -147,23 +86,6 @@ tot2015 <- vroom(here("Data.csv/tot2015.csv"))
 tot2015$data_intervento <- ymd(tot2015$data_intervento)
 tot2015$inizioIncarico <- ymd(tot2015$inizioIncarico)
 tot2015$fineIncarico <- ymd(tot2015$fineIncarico)
-
-##recode "argomento": 0=the deputy didn't talk about women, 1=the deputy told about women
-
-match <- str_match_all(tot2015$argomento, "donn(e|a)")
-
-tibble_match <- tibble(
-  x1=1:58086,
-  x2=match
-)
-tot2015$donne <- ifelse(match %in% "character(0)", "any topic", "women rights/gender equality")
-
-##check if I need to remove cases in which the deputy didn't talk about women, 
-##even if the pattern donne[ea] appears in the variable 'argomento'
-
-str_which(tot2015$argomento, "madonna|caradonna|di donna")
-
-prop.table(table(tot2015$genere, tot2015$donne), margin=1)
 
 ##recode gruppo parlamentare
 
@@ -201,12 +123,35 @@ gruppo_parl
 ##chek if I miss some categories 
 str_which(gruppo_parl, "altro")
 
-##add 'gruppo_parl' to the data frame tot2015
-tot2015$gruppo <- gruppo_parl
-with(tot2015, table(gruppo_parlamentare, gruppo_parl))
+##replace the new categories of 'gruppo_parl' in 'gruppo_parlamentare'
+tot2015$gruppo_parlamentare <- gruppo_parl
+table(tot2015$gruppo_parlamentare)
+
+##recode "argomento" in two categories: the deputy didn't talk about women/the deputy told about women
+
+match <- str_match_all(tot2015$argomento, "donn(e|a)")
+
+tibble_match <- tibble(
+  x1=1:58086,
+  x2=match
+)
+tot2015$argomento <- ifelse(match %in% "character(0)", "any topic", "women rights/gender equality")
+table(tot2015$argomento)
+
+##check if I need to remove cases in which the deputy didn't talk about women, 
+##even if the pattern donne[ea] appears in the variable 'argomento'
+
+str_which(tot2015$argomento, "madonna|caradonna|di donna")
+
+##integer(0) => I don't
+
+
+###-----not explained in the report---------
+
+prop.table(table(tot2015$genere, tot2015$argomento), margin=1)
 
 ##recode gender in order to have a numeric variable
 
 tot2015$num.gender <- ifelse(tot2015$genere == "male", 1, 0)
-table(tot2015$genere, tot2015$donne)
+table(tot2015$genere, tot2015$argomento)
 

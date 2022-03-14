@@ -16,9 +16,11 @@ library(tidyr)
 library(tm)
 library(dplyr)
 library(tables)
+library(knitr)
 library(forcats)
 library(ggplot2)
 knitr::opts_chunk$set(echo = TRUE)
+options(scipen = 99)
 geip17 <- vroom(here("Data.csv/geip17.csv"))
 tot2015 <- vroom(here("Data.csv/tot2015.csv"))
 ```
@@ -278,7 +280,28 @@ geip17 <- filter(
 
 ### Year 2015
 
-For what concerns the dataset with all parliamentary interventions of 2015, I went through the same operations as those explained above for dates and parliamentary group, then I recoded the variable `argomento` because I needed it to become a dummy: 1 if the deputy told about women, 0 if he/she didn't.
+```{r, the same as above, include=FALSE, }
+tot2015$data_intervento <- ymd(tot2015$data_intervento)
+tot2015$inizioIncarico <- ymd(tot2015$inizioIncarico)
+tot2015$fineIncarico <- ymd(tot2015$fineIncarico)
+
+m5s <- str_detect(tot2015$gruppo_parlamentare, "STELLE")
+mis <- str_detect(tot2015$gruppo_parlamentare, "MISTO")
+sx <- str_detect(tot2015$gruppo_parlamentare, "SINISTRA|DEMOCRATICO")
+cen <- str_detect(tot2015$gruppo_parlamentare, "CIVIC|POPOLARE|PER")
+dx <- str_detect(tot2015$gruppo_parlamentare, "POPOLO|FRATELLI|LEGA|DESTRA")
+
+gruppo_parl <- ifelse(m5s == TRUE,"M5S",
+                      ifelse(mis == TRUE, "Misto",
+                             ifelse(sx == TRUE, "Sinistra",
+                                    ifelse(cen==TRUE, "Centro",
+                                           ifelse(dx==TRUE, "Destra",
+                                                  "altro")))))
+
+tot2015$gruppo_parlamentare <- gruppo_parl
+```
+
+For what concerns the dataset with all parliamentary interventions of 2015, I went through the same operations as those explained above for dates and parliamentary group, then I recoded the variable `argomento` because I needed it to become a dummy: the deputy told about women/(s)he didn't.
 
 ```{r, argomento 2015}
 match <- str_match_all(tot2015$argomento, "donn(e|a)")
@@ -361,8 +384,9 @@ This result suggests that deputies told about women within "auditions", so durin
 
 ## Data viasualisation
 
+At this point, I explored the relation between gender and frequency of interventions about women rights, controlling for ideological placement of the deputy. This was done through a bar chart in which the proportion of women and man deputies who told about women in their interventions was visualised within their belonging ideological position (*Figure 2*). The outcome suggests that left wing women told about gender equality more than women from other ideological groups. Moreover, the hypothesis according to which women are more likely to talk about women rights in parliament is only confirmed for what concerns left women.  
 
-```{r, out.width = '85%', fig.align = 'center', fig.cap = 'Gender equality in Italian parliament, XVII legislature', message = F, echo = F}
+```{r, out.width = '85%', fig.align = 'center', fig.cap = 'How much men and women deputies told about gender equality during the XVII legislature', message = F, echo = F}
 
 propt17 <- prop.table(table(geip17$genere, geip17$gruppo_parlamentare), 2)
 propt17 <- as.data.frame(propt17)
@@ -370,10 +394,49 @@ propt17 <- as.data.frame(propt17)
 propt17 %>%  
   ggplot(aes(x=Var2, y=Freq, fill = factor(Var1))) +
   geom_bar(stat="identity", position = "fill", alpha=.6, width=.4) +
-  labs(title = "How much men and women deputies told about gender equality during the XVII legislature",
-       x = "parliamentary group",
+  labs(x = "parliamentary group",
        y = "frequency",
        fill="gender") +
        theme_bw()
+```
+
+The dataset with all interventions which took place in 2015 allowed to distinguish between two categories of discussions: those in which deputies mentioned the word "women" and those in which they didn't. In order to add this distinction, I firstly generated a three way table using the  `xtabls` command, then I added margins in a way that allowed me to constantly set the sum of women and men deputies to 100 for each category of the variable `argomento`. At this point, I could convert the table into a tibble and use it in my bar chart (*Figure 3*).
+
+```{r, tables 2015}
+#three way table
+
+trevtable <- xtabs(~argomento+genere+gruppo_parlamentare, data=tot2015)
+
+dimnames(trevtable) <- list(argomento = c("any topic", "gender eq/w. rights"),
+                            genere = c("women", "men"),
+                            gruppo_parlamentare=c("centre", "right", "M5S", 
+                                                  "mix", "left"))
+
+#male+female=100 for both categories of 'argomento'
+
+final_table <- ftable(addmargins(prop.table(trevtable, c(1,3)), 3))*100
+
+#convert the table into a tibble and take off the raws in which group = sum
+
+percentages <- as_tibble(final_table)
+percentages <- filter(
+  percentages,
+  !gruppo_parlamentare %in% "Sum")
+```
+
+The second bar chart clearly shows that the proportion of women deputies who intervened is much higher if the discussion is about gender equality. This is particularly true if we consider right and left women, whereas for other ideological positions the proportion of intervened men is higher than 0.5 even if the discussion is about gender equality.
+
+```{r, out.width = '100%', fig.align = 'center', fig.cap = 'How much men and women deputies told about gender equality in 2015', message = F, echo = F}
+
+percentages %>%
+  ggplot(aes(x=gruppo_parlamentare, y=Freq, fill = factor(genere))) +
+  geom_bar(stat="identity", position = "fill", alpha=.6, width=.4) +
+  facet_wrap(~argomento, scale="free") +
+  labs(x = "parliamentary group",
+       y = "frequency",
+       fill="gender") +
+  theme_bw() +
+  theme(legend.position = "bottom", legend.title.align=0.5)
+
 ```
 

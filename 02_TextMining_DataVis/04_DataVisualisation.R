@@ -43,8 +43,8 @@ propt17 %>%
 
 options(scipen = 99) #to avoid esponentials 
 
-#generate a table with three variables: whether or not the deputy told about women,
-#if he/she was a man or a women and which was his/her belonging parliamentary group
+#generate a three way table: 1) whether or not the deputy told about women,
+#2) if he/she was a man or a women and 3) which was his/her belonging parl. group
 
 trevtable <- xtabs(~argomento+genere+gruppo_parlamentare, data=tot2015)
 trevtable
@@ -57,7 +57,7 @@ ftable(trevtable)
 
 #add % so that the sum male+female=100 for both categories of 'argomento'
 
-final_table <- ftable(addmargins(prop.table(trevtable, c(1,3)), 3))*100
+final_table <- ftable(addmargins(prop.table(trevtable, c(1,3)), 2))*100
 final_table
 
 #convert the table into a data frame and take off the raws in which group = sum

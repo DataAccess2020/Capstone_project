@@ -1,5 +1,6 @@
 ---
-title: "Report capstone project 2022"
+title: "Sensitivity on gender equality in Italian parliament during the XVII legislature"
+subtitle: "Report capstone project 2022"
 author: "Erica Ravarelli"
 output: pdf_document
 ---
@@ -369,7 +370,7 @@ bigrams_count <- greplbu %>%
 
 The outcome of this analysis is reported in *Figure 1*.
 
-```{r, out.width = '75%', fig.align = 'center', fig.cap = 'Most common bigrams containing the word "donna/e", XVII legislature', message = F, echo = F}
+```{r, out.width = '78%', fig.align = 'center', fig.cap = 'Most common bigrams containing the word "donna/e", XVII legislature', message = F, echo = F}
 bigrams_count %>%
   mutate(noswords = fct_reorder(noswords, n)) %>%
   ggplot(aes(x=noswords, y=n)) +
@@ -385,7 +386,7 @@ This result suggests that deputies told about women within "auditions", so durin
 
 At this point, I explored the relation between gender and frequency of interventions about women rights, controlling for ideological placement of the deputy. This was done through a bar chart in which the proportion of women and man deputies who told about women in their interventions was visualised within their belonging ideological position (*Figure 2*). The outcome suggests that left wing women told about gender equality more than women from other ideological groups. Moreover, the hypothesis according to which women are more likely to talk about women rights in parliament is only confirmed for what concerns left women.
 
-```{r, out.width = '75%', fig.align = 'center', fig.cap = 'How much men and women deputies told about gender equality during the XVII legislature', message = F, echo = F}
+```{r, out.width = '80%', fig.align = 'center', fig.cap = 'How much men and women deputies told about gender equality during the XVII legislature', message = F, echo = F}
 
 propt17 <- prop.table(table(geip17$genere, geip17$gruppo_parlamentare), 2)
 propt17 <- as.data.frame(propt17)
@@ -403,20 +404,14 @@ The dataset with all interventions which took place in 2015 allowed to distingui
 
 ```{r, tables 2015}
 #three way table
-
 trevtable <- xtabs(~argomento+genere+gruppo_parlamentare, data=tot2015)
-
 dimnames(trevtable) <- list(argomento = c("any topic", "gender eq/w. rights"),
                             genere = c("women", "men"),
                             gruppo_parlamentare=c("centre", "right", "M5S", 
                                                   "mix", "left"))
-
 #male+female=100 for both categories of 'argomento'
-
 final_table <- ftable(addmargins(prop.table(trevtable, c(1,3)), 2))*100
-
 #convert the table into a tibble and take off the raws in which group = sum
-
 percentages <- as_tibble(final_table)
 percentages <- filter(
   percentages,
@@ -441,7 +436,7 @@ percentages %>%
 
 Finally, I calculated the chi-square statistic which allowed to detect the existence of an association between the variables `genere` and `gruppo parlamentare` and the variable `argomento`. The value of the chi-square is very high, but this could be due to the large sample size. I, therefore, analysed the standardized residuals, to find out when the association is positive and when it is negative. Results are reported in the table below and they confirm the hypothesis according to which left women are slightly more likely to talk about gender equality than women from other ideological positions, with the exception of women from the 'mix' group, because the observed frequency exceeds the one we would have observed if there was independence. However, if we consider left women, the observed frequency exceeds the expected one also for the other category of the variable `argomento`.
 
-```{r, warning=FALSE}
+```{r, chisq,  message = F, echo = F, warning=F}
 trevtable <- ftable(trevtable)
 chisq <- chisq.test(trevtable)
 tibblechisq <- tibble(
@@ -450,14 +445,18 @@ tibblechisq <- tibble(
   pvalue=chisq[["p.value"]]
 )
 kable(tibblechisq)
+```
+
+```{r, fig.cap = 'standardixed residuals', message = F, echo = F}
 tab <- round(chisq$residuals, 3)
 tab
 ```
-
 ## Limits of the analysis and conclusion
 
 The first limit of this analysis is due my lack of expertise in using the SPARQL language, which caused the decision of considering only discussions which took place in 2015 rather than selecting the whole period corresponding to Renzi govern (from February 2014 to December 2016).
 
-Secondly, this analysis relies on a strong assumption according to which mentioning the word "donne" means talking about women rights and/or gender equality. It comes without saying that this is not always true. To try reducing the possibility of including intervention which were not relevant for the analysis, I decided to carry out text mining. However, the most common bigram turned out to be 'donne audizione', which, as already mentioned, does not provide the anylisis with a useful information about the precise scope whithin which the word "donne" was mentioned. 
+Secondly, this analysis relies on a strong assumption according to which mentioning the word "donne" means talking about women rights and/or gender equality. It comes without saying that this is not always true. To try reducing the possibility of including intervention which were not relevant for the analysis, I decided to carry out text mining. However, the most common bigram turned out to be 'donne audizione', which, as already mentioned, does not provide the anylisis with a useful information about the precise scope within which the word "donne" was mentioned. 
 
 The third limit of this short research consists of the absence of a quantitative prediction in terms of how much being a women determines being more likely to talk about issues concerning gender equality. 
+
+Having said that, this research allows to point out the existence of differences in terms of parliamentary interventions about women rights, since the proportion of men who talk about gender equality issues is lower than the one of men who talk about other topics for all ideological positions. However, the hypothesis according to which the proportion of women who talk about gender equality is higher than the one of men is confirmed only for women belonging to right and left parties.

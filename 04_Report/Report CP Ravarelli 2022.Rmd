@@ -27,14 +27,14 @@ tot2015 <- vroom(here("Data.csv/tot2015.csv"))
 
 # Research question
 
-This short research is aimed at investigatig the relation between gender and tendency to talk about gender equality in Italian parliament. An insight on the relation between party ideology and tendency to talk about women rights will be given, too. The analysis focuses on the XVII legislature, with a specific attention to 2015.
+This short research is aimed at investigating the relation between gender and tendency to talk about gender equality in Italian parliament. An insight on the relation between party ideology and tendency to talk about women rights will be given, too. The analysis focuses on the XVII legislature, with a specific attention to 2015.
 
 Previous research have pointed out the fact that political representation is influenced by personal identity traits of the politician, specifically by his/her gender and race. Evidences about the relation between belonging political party and tendency to pay attention to gender equality have been found, too, with a strong association between left parties and sensitivity on gender equality issues. However, there is a lack of studies exploring these relations in the Italian context. My research aims at filling this gap.\
 The selection concerning time period has been driven by the fact that the highest number of women deputies has been reached in the context of the last legislature, if we exclude the current one which is still ongoing. Moreover, the year 2015 has been the only one in which no change of government took place, suggesting that parliamentary activity hasn't been altered by external interferences.
 
 ## Research structure and methods
 
-This project is structured as follows: in the first section, I will briefly describe the data collection process, in the second one I will go through the descriptive part of the analysis, whereas in the last section I will illustrate the consistency of the relations through the application of a chi-squared test.
+This project is structured as follows: in the first section, I will briefly describe the data collection process, in the second one I will explain how text mining has been carried out, whereas in the last section I will ho through the descriptive part of the analysis and I will explain how I applied the chi-squared test.
 
 # Technical overview
 
@@ -316,8 +316,7 @@ tot2015$argomento <- ifelse(match %in% "character(0)", "any topic",
 
 ## Text mining XVII legislature
 
-After carrying out a bit of data cleaning, I aimed at finding out within which scope deputies had been talking about women during the XVII legislature. In practical terms, this meant examining which words tended to immediately follow the word "donna". This task has been carried out through the `tidytext` package.
-First of all, I removed numbers from the variable `argomento`, then I used the `tm` package to download a list of Italian stop words, which I turned into the tibble `manualswords`. In this tibble I included also other words I didn't want to consider in my analysis. 
+After carrying out a bit of data cleaning, I aimed at finding out within which scope deputies had been talking about women during the XVII legislature. In practical terms, this meant examining which words tended to immediately follow the word "donna". This task has been carried out through the `tidytext` package. First of all, I removed numbers from the variable `argomento`, then I used the `tm` package to download a list of Italian stop words, which I turned into the tibble `manualswords`. In this tibble I included also other words I didn't want to consider in my analysis.
 
 ```{r, stop words}
 
@@ -342,7 +341,7 @@ bigrams <- geip17 %>%
   unnest_tokens(split_argomento, argomento, token="ngrams", n=2)
 ```
 
-To remove stop words from this variable I had to split the column into its single words, and to filter the newly created tibble in order to remove words belonging to the `manualswords` tibble. 
+To remove stop words from this variable I had to split the column into its single words, and to filter the newly created tibble in order to remove words belonging to the `manualswords` tibble.
 
 ```{r, warning = FALSE}
 bigrams_sep <- bigrams %>% 
@@ -370,7 +369,7 @@ bigrams_count <- greplbu %>%
 
 The outcome of this analysis is reported in *Figure 1*.
 
-```{r, out.width = '85%', fig.align = 'center', fig.cap = 'Most common bigrams containing the word "donna/e", XVII legislature', message = F, echo = F}
+```{r, out.width = '75%', fig.align = 'center', fig.cap = 'Most common bigrams containing the word "donna/e", XVII legislature', message = F, echo = F}
 bigrams_count %>%
   mutate(noswords = fct_reorder(noswords, n)) %>%
   ggplot(aes(x=noswords, y=n)) +
@@ -384,9 +383,9 @@ This result suggests that deputies told about women within "auditions", so durin
 
 ## Data viasualisation
 
-At this point, I explored the relation between gender and frequency of interventions about women rights, controlling for ideological placement of the deputy. This was done through a bar chart in which the proportion of women and man deputies who told about women in their interventions was visualised within their belonging ideological position (*Figure 2*). The outcome suggests that left wing women told about gender equality more than women from other ideological groups. Moreover, the hypothesis according to which women are more likely to talk about women rights in parliament is only confirmed for what concerns left women.  
+At this point, I explored the relation between gender and frequency of interventions about women rights, controlling for ideological placement of the deputy. This was done through a bar chart in which the proportion of women and man deputies who told about women in their interventions was visualised within their belonging ideological position (*Figure 2*). The outcome suggests that left wing women told about gender equality more than women from other ideological groups. Moreover, the hypothesis according to which women are more likely to talk about women rights in parliament is only confirmed for what concerns left women.
 
-```{r, out.width = '85%', fig.align = 'center', fig.cap = 'How much men and women deputies told about gender equality during the XVII legislature', message = F, echo = F}
+```{r, out.width = '75%', fig.align = 'center', fig.cap = 'How much men and women deputies told about gender equality during the XVII legislature', message = F, echo = F}
 
 propt17 <- prop.table(table(geip17$genere, geip17$gruppo_parlamentare), 2)
 propt17 <- as.data.frame(propt17)
@@ -400,7 +399,7 @@ propt17 %>%
        theme_bw()
 ```
 
-The dataset with all interventions which took place in 2015 allowed to distinguish between two categories of discussions: those in which deputies mentioned the word "women" and those in which they didn't. In order to add this distinction, I firstly generated a three way table using the  `xtabls` command, then I added margins in a way that allowed me to constantly set the sum of women and men deputies to 100 for each category of the variable `argomento`. At this point, I could convert the table into a tibble and use it in my bar chart (*Figure 3*).
+The dataset with all interventions which took place in 2015 allowed to distinguish between two categories of discussions: those in which deputies mentioned the word "women" and those in which they didn't. In order to add this distinction, I firstly generated a three way table using the `xtabs` command, then I added margins in a way that allowed me to set the sum of women and men deputies to 100 for each category of the variable `argomento`. After converting the table into a tibble and removing sums, I could use it in my bar chart (*Figure 3*).
 
 ```{r, tables 2015}
 #three way table
@@ -414,19 +413,19 @@ dimnames(trevtable) <- list(argomento = c("any topic", "gender eq/w. rights"),
 
 #male+female=100 for both categories of 'argomento'
 
-final_table <- ftable(addmargins(prop.table(trevtable, c(1,3)), 3))*100
+final_table <- ftable(addmargins(prop.table(trevtable, c(1,3)), 2))*100
 
 #convert the table into a tibble and take off the raws in which group = sum
 
 percentages <- as_tibble(final_table)
 percentages <- filter(
   percentages,
-  !gruppo_parlamentare %in% "Sum")
+  !Freq == 100.00000)
 ```
 
 The second bar chart clearly shows that the proportion of women deputies who intervened is much higher if the discussion is about gender equality. This is particularly true if we consider right and left women, whereas for other ideological positions the proportion of intervened men is higher than 0.5 even if the discussion is about gender equality.
 
-```{r, out.width = '100%', fig.align = 'center', fig.cap = 'How much men and women deputies told about gender equality in 2015', message = F, echo = F}
+```{r, out.width = '90%', fig.align = 'center', fig.cap = 'How much men and women deputies told about gender equality in 2015', message = F, echo = F}
 
 percentages %>%
   ggplot(aes(x=gruppo_parlamentare, y=Freq, fill = factor(genere))) +
@@ -440,3 +439,25 @@ percentages %>%
 
 ```
 
+Finally, I calculated the chi-square statistic which allowed to detect the existence of an association between the variables `genere` and `gruppo parlamentare` and the variable `argomento`. The value of the chi-square is very high, but this could be due to the large sample size. I, therefore, analysed the standardized residuals, to find out when the association is positive and when it is negative. Results are reported in the table below and they confirm the hypothesis according to which left women are slightly more likely to talk about gender equality than women from other ideological positions, with the exception of women from the 'mix' group, because the observed frequency exceeds the one we would have observed if there was independence. However, if we consider left women, the observed frequency exceeds the expected one also for the other category of the variable `argomento`.
+
+```{r, warning=FALSE}
+trevtable <- ftable(trevtable)
+chisq <- chisq.test(trevtable)
+tibblechisq <- tibble(
+  Chisquare=chisq[["statistic"]],
+  df=chisq[["parameter"]],
+  pvalue=chisq[["p.value"]]
+)
+kable(tibblechisq)
+tab <- round(chisq$residuals, 3)
+tab
+```
+
+## Limits of the analysis and conclusion
+
+The first limit of this analysis is due my lack of expertise in using the SPARQL language, which caused the decision of considering only discussions which took place in 2015 rather than selecting the whole period corresponding to Renzi govern (from February 2014 to December 2016).
+
+Secondly, this analysis relies on a strong assumption according to which mentioning the word "donne" means talking about women rights and/or gender equality. It comes without saying that this is not always true. To try reducing the possibility of including intervention which were not relevant for the analysis, I decided to carry out text mining. However, the most common bigram turned out to be 'donne audizione', which, as already mentioned, does not provide the anylisis with a useful information about the precise scope whithin which the word "donne" was mentioned. 
+
+The third limit of this short research consists of the absence of a quantitative prediction in terms of how much being a women determines being more likely to talk about issues concerning gender equality. 

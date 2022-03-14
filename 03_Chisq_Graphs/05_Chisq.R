@@ -1,3 +1,4 @@
+trevtable <- xtabs(~argomento+genere+gruppo_parlamentare, data=tot2015)
 trevtable <- ftable(trevtable)
 chisq <- chisq.test(trevtable)
 tibblechisq <- tibble(

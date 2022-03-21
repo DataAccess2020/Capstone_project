@@ -21,6 +21,6 @@ At a later time, I will take into consideration all interventions which took pla
 - 01_DataImport_Cleaning: data import + data cleaning 
 - 02_TextMining_DataVis: Text mining + data visualization
 - 03_Chisq_graphs: Chi-squared test + graphs.pdf
-- 04_Report: Report (.Rmd, .pdf)
+- 04_Report: Report (.Rmd, .pdf) + references.bib
 - Data.csv: datasets 
 

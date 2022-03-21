@@ -3,10 +3,8 @@ _Capstone project data access and regulation 2022_ :dart:
 
 1. :microscope:Domanda di ricerca: do women deputies talk about gender equality and gender discrimination more than men deputies? Do left women talk about gender equality more than right men and women?
 Previous research investigating similar issues:
-- Bratton, K. A., Haynie, Kerry L., Agenda Setting and Legislative Success in State Legislatures: The Effects of Gender and Race
-- Reingold, B., Concepts of Representation Am Female and Male State Legislators
-- Bratton, A.K., Haynie, K.L., Reingold, B., Agenda Setting and African American Women in State Legislatures
-- Caul, M., Women's Representation in Parliament
+- Bratton, A.K., Haynie, K.L., Reingold, B., _Agenda Setting and African American Women in State Legislatures_
+- Caul, M., _Women's Representation in Parliament_
 2. :question:  Hypothesis
  - 1: women tend to talk about gender equality more than men 
  - 2: left women thend to talk about gender equality more than right men and women

@@ -2,7 +2,12 @@
 title: "Sensitivity on gender equality in Italian parliament during the XVII legislature"
 subtitle: "Report capstone project 2022"
 author: "Erica Ravarelli"
-output: pdf_document
+output: 
+  pdf_document:
+    includes:
+      extra_dependencies: ["xcolor"]
+      in_header: preamble.tex
+
 ---
 
 ```{r setup, include=FALSE}
@@ -30,16 +35,16 @@ tot2015 <- vroom(here("Data.csv/tot2015.csv"))
 
 This short research is aimed at investigating the relation between gender and tendency to talk about gender equality in Italian parliament. An insight on the relation between party ideology and tendency to talk about women rights will be given, too. The analysis focuses on the XVII legislature, with a specific attention to 2015.
 
-Previous research have pointed out the fact that political representation is influenced by personal identity traits of the politician, specifically by his/her gender and race. Evidences about the relation between belonging political party and tendency to pay attention to gender equality have been found, too, with a strong association between left parties and sensitivity on gender equality issues. However, there is a lack of studies exploring these relations in the Italian context. My research aims at filling this gap.\
+Previous research have pointed out the fact that political representation is influenced by personal identity traits of the politician, specifically by his/her gender and race. Evidences about the relation between belonging political party and tendency to pay attention to gender equality have been found, too, with a strong association between left-wing parties and sensitivity on gender equality issues. However, there is a lack of studies exploring these relations in the Italian context. My research aims at filling this gap.\
 The selection concerning time period has been driven by the fact that the highest number of women deputies has been reached in the context of the last legislature, if we exclude the current one which is still ongoing. Moreover, the year 2015 has been the only one in which no change of government took place, suggesting that parliamentary activity hasn't been altered by external interferences.
 
 ## Research structure and methods
 
-This project is structured as follows: in the first section, I will briefly describe the data collection process, in the second one I will explain how text mining has been carried out, whereas in the last section I will ho through the descriptive part of the analysis and I will explain how I applied the chi-squared test.
+This project is structured as follows: in the first section, I will briefly describe the data collection process, in the second one I will explain how text mining has been carried out, whereas in the last section I will go through the descriptive part of the analysis and I will explain how I applied the chi-squared test.
 
 # Technical overview
 
-The whole R scripts are available in [this](https://github.com/DataAccess2020/Capstone_project) Github repository. Therefore, in this short report I will only include and comment the most important passages of the analysis and the related lines of code. However, this does not affect the accessibility and reproducibility of the workflow.
+The whole R scripts are available in \link{https://github.com/DataAccess2020/Capstone_project}{this} Github repository. Therefore, in this short report I will only include and comment the most important passages of the analysis and the related lines of code. However, this does not affect the accessibility and reproducibility of the workflow.
 
 ## R packages
 
@@ -63,7 +68,7 @@ library(ggplot2)
 
 ## Data collection
 
-Data have been collected through the [Open Data portal of Camera dei Deputati](https://dati.camera.it/it/), in particular the Virtuoso endpoint has been queried using the SPARQL language; the returned data have been imported into R thanks to the SPARQL package. In both queries, the scraped url is the following one
+Data have been collected through the \link{https://dati.camera.it/it/}{Open Data portal of Camera dei Deputati}, in particular the Virtuoso endpoint has been queried using the SPARQL language; the returned data have been imported into R thanks to the SPARQL package. In both queries, the scraped url is the following one
 
 ```{r, site }
 url="http://dati.camera.it/sparql"
@@ -382,7 +387,7 @@ bigrams_count %>%
 
 This result suggests that deputies told about women within "auditions", so during interventions which are meant to allow commissions to deepen their knowledge about a specific topic. This first result is, therefore, not very useful to understand the precise scope of speeches mentioning women. However, we can say that during the XVII legislature deputies told about women within the scope of pensions ("opzione donna"), which confirms an historical focus of Italian welfare state, and, as a general rule, when violence episodes took place or in order to address the issue of violence against women.
 
-## Data viasualisation
+## Data visualisation
 
 At this point, I explored the relation between gender and frequency of interventions about women rights, controlling for ideological placement of the deputy. This was done through a bar chart in which the proportion of women and man deputies who told about women in their interventions was visualised within their belonging ideological position (*Figure 2*). The outcome suggests that left wing women told about gender equality more than women from other ideological groups. Moreover, the hypothesis according to which women are more likely to talk about women rights in parliament is only confirmed for what concerns left women.
 
@@ -451,12 +456,13 @@ kable(tibblechisq)
 tab <- round(chisq$residuals, 3)
 tab
 ```
+
 ## Limits of the analysis and conclusion
 
 The first limit of this analysis is due my lack of expertise in using the SPARQL language, which caused the decision of considering only discussions which took place in 2015 rather than selecting the whole period corresponding to Renzi govern (from February 2014 to December 2016).
 
-Secondly, this analysis relies on a strong assumption according to which mentioning the word "donne" means talking about women rights and/or gender equality. It comes without saying that this is not always true. To try reducing the possibility of including intervention which were not relevant for the analysis, I decided to carry out text mining. However, the most common bigram turned out to be 'donne audizione', which, as already mentioned, does not provide the anylisis with a useful information about the precise scope within which the word "donne" was mentioned. 
+Secondly, this analysis relies on a strong assumption according to which mentioning the word "donne" means talking about women rights and/or gender equality. It comes without saying that this is not always true. To try reducing the possibility of including intervention which were not relevant for the analysis, I decided to carry out text mining. However, the most common bigram turned out to be 'donne audizione', which, as already mentioned, does not provide the anylisis with a useful information about the precise scope within which the word "donne" was mentioned.
 
-The third limit of this short research consists of the absence of a quantitative prediction in terms of how much being a women determines being more likely to talk about issues concerning gender equality. 
+The third limit of this short research consists of the absence of a quantitative prediction in terms of how much being a women determines being more likely to talk about issues concerning gender equality.
 
 Having said that, this research allows to point out the existence of differences in terms of parliamentary interventions about women rights, since the proportion of men who talk about gender equality issues is lower than the one of men who talk about other topics for all ideological positions. However, the hypothesis according to which the proportion of women who talk about gender equality is higher than the one of men is confirmed only for women belonging to right and left parties.

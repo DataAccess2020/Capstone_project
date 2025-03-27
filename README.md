@@ -7,7 +7,7 @@ Previous research investigating similar issues:
 - Caul, M., _Women's Representation in Parliament_
 2. :question:  Hypothesis
  - 1: women tend to talk about gender equality more than men 
- - 2: left women thend to talk about gender equality more than right men and women
+ - 2: left women tend to talk about gender equality more than right men and women
 Theory: political representativeness as a mirror: is similarity required in order to achieve a representative parliament? (https://www.senato.it/application/xmanager/projects/leg18/file/repository/relazioni/libreria/novita/XVIII/sartori_lezione_def.pdf)
 3.	:open_file_folder: I will use open data from the site https://dati.camera.it/it/dati/.
 I will take into consideration the XVII legislature because, with the exception of the current one which is still ongoing, the XVII is the legislature in which the highest number of women deputies has been elected. I will select interventions in which deputies have been talking about gender equality and will verify if they were mostly made by women or men. Then, I will differentiate according to the belonging parliamentary group of the deputy, in order to detect potential differences between left and right wing parites.
